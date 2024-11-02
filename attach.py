@@ -33,7 +33,6 @@ class Attach:
 
             if response.status_code == 201:
                 self.logger.info(f"Файл '{file_path}' успешно загружен в Gitea к задаче номер {issue_number}.")
-                os.remove(file_path)
             else:
                 self.logger.error(f"Ошибка при загрузке файла в Gitea: {response.status_code} - {response.text}")
         except Exception as e:

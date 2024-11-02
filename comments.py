@@ -97,8 +97,6 @@ class Comments:
 
         if response.status_code == 201:
             self.logger.info(f"Вложение '{file_path}' загружено в Gitea")
-            os.remove(file_path)
-
         else:
             self.logger.error(f"Ошибка при загрузке вложения: {response.status_code} - {response.text}")
 
@@ -112,10 +110,11 @@ class Comments:
         comments = self.get_comments(youtrack_issue_id)
         if comments:
             for comment in comments:
-                comment_text = comment['text']
+                comment_text = comment['text'] if comment is not None and 'text' in comment and comment['text'] is not None else ""
+
                 fullName = comment['author'].get('fullName')
                 login = comment['author'].get('login')
-                comment_text = "[" + fullName+ "]("+self.gitea_url+"/"+login+")\n" + comment['text']
+                comment_text = "[" + fullName+ "]("+self.gitea_url+"/"+login+")\n" + comment_text
                 attachments = [os.path.join(self.download_folder, att['name']) for att in comment.get('attachments', [])]
                 self.post_comment_to_gitea(gitea_issue_number, comment_text, attachments)
 

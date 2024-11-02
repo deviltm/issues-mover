@@ -6,6 +6,8 @@ from gitea import Gitea
 from prj_logger import get_logger  # Импортируем логгерl
 
 def main():
+    logger = get_logger( 'log.txt')
+
     load_dotenv()
 
     parser = argparse.ArgumentParser(description="Перенос задач из YouTrack в Gitea с поддержкой вложений.")
@@ -58,21 +60,31 @@ def main():
     issues = youtrack.fetch_issues(settings['youtrack_project'])
     label_map = gitea.get_labels()
 
-    youtrack_tags = {
-        tag['name']: tag['color'].get('background') for issue in issues for tag in issue.get('tags', [])
-    }
+    # Проверка, что label_map не None и не пустой
+    if label_map:
 
-    gitea.create_labels({tag: background for tag, background in youtrack_tags.items() if tag not in label_map})
+        youtrack_tags = {
+            tag['name']: tag['color'].get('background') for issue in issues for tag in issue.get('tags', [])
+        }
 
-    label_id_map = gitea.get_labels()
+        # Фильтрация и создание меток, которые отсутствуют в label_map
+        new_labels = {tag: background for tag, background in youtrack_tags.items() if tag not in label_map}
+        
+        if new_labels:
+            gitea.create_labels(new_labels)
+            label_map = gitea.get_labels()
+        else:
+            logger.info("Новые метки отсутствуют для создания.")
+    else:
+        logger.error("Ошибка: не удалось получить существующие метки.")
+
 
     # Сортируем задачи по номеру в проекте
     issues_sorted = sorted(issues, key=lambda x: x['numberInProject'])
 
 
     for issue in issues_sorted:
-        gitea.transfer_issue(issue, label_id_map)
+        gitea.transfer_issue(issue, label_map)
 
 if __name__ == "__main__":
-   get_logger( 'log.txt')
    main()

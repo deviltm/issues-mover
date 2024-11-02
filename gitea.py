@@ -69,16 +69,18 @@ class Gitea:
             response.raise_for_status()
             label_repo = {label['name']: label['id'] for label in response.json()}
             labels.update(label_repo)
+        except requests.RequestException as e:
+            self.log_error(f"Ошибка при получении меток: {e}")
 
+        try:
             response = requests.get(url_org, headers=self.headers)
             response.raise_for_status()
             label_org = {label['name']: label['id'] for label in response.json()}
             labels.update(label_org)
-
-            return labels
         except requests.RequestException as e:
             self.log_error(f"Ошибка при получении меток: {e}")
-            return {}
+
+        return labels
 
     def create_labels(self, youtrack_tags):
         for label, color in youtrack_tags.items():
