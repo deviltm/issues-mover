@@ -1,7 +1,3 @@
-Вот улучшенная версия README на русском:
-
----
-
 # Перенос задач из YouTrack в Gitea с поддержкой вложений
 
 Скрипт для переноса задач из YouTrack в Gitea с возможностью добавления меток, статусов и загрузки вложений.
@@ -35,6 +31,12 @@
     ```bash
     python main.py --youtrack_url <URL> --youtrack_token <TOKEN> --gitea_url <URL> --gitea_token <TOKEN> --gitea_owner <OWNER> --gitea_repo <REPO> --youtrack_project <PROJECT> --enable_attachments --enable_comments
     ```
+
+для разных проектов можно записать основные настройки в .env а часть менять ключами при запуске, ключи имеют приоритет.
+
+```bash
+    python main.py --enable_attachments --enable_comments
+```
 
     **Параметры:**
 
